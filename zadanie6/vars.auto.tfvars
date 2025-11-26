@@ -1,0 +1,8 @@
+project = "ABOBAProject"
+network = "192.168.99.0/24"
+pool = "pool"
+base_volume_path = "https://dl.astralinux.ru/artifactory/mg-generic/alse/qemu/alse-1.8.3.uu1-base-qemu-mg15.8.0-amd64.qcow2"
+cpu = 2
+ram = 2048
+hdd = 30
+vms_count = 2
