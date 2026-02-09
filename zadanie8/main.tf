@@ -16,14 +16,19 @@ resource "libvirt_volume" "base"{
     name = "${var.project}_base_img"
     source = var.base_volume_path
     format = "qcow2"
+    pool = "pool"
+}
+
+resource "libvirt_pool" "terraform_pool"{
+    name = "pool"
+    type = "dir"
+    path = "/home/astralinux.ru/akhristoforov/pool"
 }
 
 resource "libvirt_network" "network"{
     name = "${var.project}_network"
     mode = "nat"
     addresses = ["${var.network}"]
-    autostart = true
-    
 }
 
 resource "libvirt_domain" "domain"{
@@ -35,24 +40,13 @@ resource "libvirt_domain" "domain"{
     network_interface {
         network_id     = libvirt_network.network.id
         hostname       = "${var.project}_vm${count.index}"
-        wait_for_lease = true
     }
     disk {
         volume_id = libvirt_volume.volume[count.index].id
     }
-
     provisioner "local-exec" {
-        when = create
-        //command = "echo ${self.network_interface.0.addresses.0}"
-        command = "bash ./on_create_vm.sh ${self.network_interface.0.addresses.0} | tee -a log.txt"
+        command = "echo Vm created >> log.txt"
     }
-
-    provisioner "local-exec" {
-        when = destroy
-        //command = "echo ${self.network_interface.0.addresses.0}"
-        command = "bash ./on_destroy_vm.sh ${self.network_interface.0.addresses.0} | tee -a log.txt"
-    }
-
 
 }
 
@@ -61,4 +55,7 @@ resource "libvirt_volume" "volume"{
     count = var.vms_count
     size = var.hdd * 1024 * 1024 * 1024
     base_volume_id = libvirt_volume.base.id
+    pool = "pool"
 }
+
+
